@@ -82,6 +82,23 @@
       justify-content: center;
     }
 
+     /* Download button styling */
+    #download-button {
+      margin: 1rem auto;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none; /* hidden until results are shown */
+      transition: background-color 0.2s;
+    }
+    #download-button:hover {
+      background-color: #388e3c;
+    }
+
     .choice-button {
       flex: 1;
       padding: 0.5rem 0.75rem;
@@ -154,7 +171,6 @@
     #results-container {
       display: none;
       width: 100%;
-      max-width: 900px;
       margin-top: 2rem;
     }
     .results-grid {
@@ -226,6 +242,7 @@
       }
     }
   </style>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
   <h1>F*ck, Marry, Kill</h1>
@@ -241,6 +258,7 @@
   <div id="results-container">
     <h2>Your Choices</h2>
     <div class="results-grid" id="results-grid"></div>
+    <button id="download-button">Download Results as PNG</button>
   </div>
 
   <script>
@@ -287,11 +305,12 @@
       let currentPullIndex = 0;
 
       // DOM references
-      const pullCounterEl   = document.getElementById("pull-counter");
-      const imagesRowEl     = document.getElementById("images-row");
-      const nextButton      = document.getElementById("next-button");
+      const pullCounterEl    = document.getElementById("pull-counter");
+      const imagesRowEl      = document.getElementById("images-row");
+      const nextButton       = document.getElementById("next-button");
       const resultsContainer = document.getElementById("results-container");
-      const resultsGridEl   = document.getElementById("results-grid");
+      const resultsGridEl    = document.getElementById("results-grid");
+      const downloadButton   = document.getElementById("download-button");
 
       // Render the very first pull:
       renderCurrentPull();
@@ -308,7 +327,7 @@
           const card = document.createElement("div");
           card.classList.add("image-card");
 
-          // <img src="images/1.png">
+          // <img src="images/filename.png">
           const img = document.createElement("img");
           img.src = `images/${filename}`;
           img.alt = filename;
@@ -340,65 +359,86 @@
       // ─────────────────────────────────────────────────────────────────────
       // HANDLER: User clicks “Fuck/Marry/Kill”
       // ─────────────────────────────────────────────────────────────────────
-      function onChoiceClicked(e) {
-        const clickedBtn   = e.currentTarget;
-        const chosenAction = clickedBtn.dataset.action;   // “fuck”/“marry”/“kill”
-        const chosenFile   = clickedBtn.dataset.filename; // e.g. “42.png”
+function onChoiceClicked(e) {
+  const clickedBtn   = e.currentTarget;
+  const chosenAction = clickedBtn.dataset.action;   // “fuck”/“marry”/“kill”
+  const chosenFile   = clickedBtn.dataset.filename; // e.g. “42.png”
 
-        // If they click the same already-selected button, ignore
-        if (clickedBtn.classList.contains("selected")) {
-          return;
-        }
-
-        // Gather all buttons in THIS pull (so we can enable/disable)
-        const allBtnsThisPull = imagesRowEl.querySelectorAll(".choice-button");
-
-        // 1) If that filename already had a previous choice, un-select & re-enable that action elsewhere
-        const prevChoice = userChoices[chosenFile];
-        if (prevChoice) {
-          allBtnsThisPull.forEach(b => {
-            if (
-              b.dataset.action === prevChoice &&
-              b.dataset.filename !== chosenFile
-            ) {
-              b.disabled = false;
-            }
-          });
-        }
-
-        // 2) Remove “selected” class from the other two buttons of the same image
-        allBtnsThisPull.forEach(b => {
-          if (b.dataset.filename === chosenFile) {
-            b.classList.remove("selected");
-          }
-        });
-
-        // 3) Record new selection
-        userChoices[chosenFile] = chosenAction;
-        clickedBtn.classList.add("selected");
-
-        // 4) Disable this same action on the other two cards (and un-select if they had chosen it)
-        allBtnsThisPull.forEach(b => {
-          if (
-            b.dataset.action === chosenAction &&
-            b.dataset.filename !== chosenFile
-          ) {
-            if (b.classList.contains("selected")) {
-              b.classList.remove("selected");
-              delete userChoices[b.dataset.filename];
-            }
-            b.disabled = true;
-          }
-        });
-
-        // 5) Check if all three images in this pull now have a recorded choice
-        const trio = pulls[currentPullIndex];
-        const allChosen = trio.every(f => typeof userChoices[f] === "string");
-        if (allChosen) {
-          nextButton.classList.add("enabled");
-          nextButton.disabled = false;
-        }
+  // 1) If the clicked button is already selected, un‐select it:
+  if (clickedBtn.classList.contains("selected")) {
+    // Remove the “selected” class from this button:
+    clickedBtn.classList.remove("selected");
+    // Remove the stored choice for this file:
+    delete userChoices[chosenFile];
+    // Re‐enable that action (e.g. “marry”) on the other two cards in this pull:
+    const allBtnsThisPull = imagesRowEl.querySelectorAll(".choice-button");
+    allBtnsThisPull.forEach(b => {
+      if (
+        b.dataset.action === chosenAction &&
+        b.dataset.filename !== chosenFile
+      ) {
+        b.disabled = false;
       }
+    });
+    // Since one image is now un‐assigned, disable “Next” again:
+    nextButton.classList.remove("enabled");
+    nextButton.disabled = true;
+    return;
+  }
+
+  // 2) Otherwise, this is a new selection. Proceed with the existing logic:
+
+  // Gather all buttons in this pull (so we can enable/disable actions)
+    const allBtnsThisPull = imagesRowEl.querySelectorAll(".choice-button");
+
+    // If that filename had a previous choice, un‐select it and re‐enable that action elsewhere:
+    const prevChoice = userChoices[chosenFile];
+    if (prevChoice) {
+        allBtnsThisPull.forEach(b => {
+        if (
+            b.dataset.action === prevChoice &&
+            b.dataset.filename !== chosenFile
+        ) {
+            b.disabled = false;
+        }
+        });
+    }
+
+    // Remove “selected” from any other button for this same image:
+    allBtnsThisPull.forEach(b => {
+        if (b.dataset.filename === chosenFile) {
+        b.classList.remove("selected");
+        }
+    });
+
+    // Record the new choice for this image:
+    userChoices[chosenFile] = chosenAction;
+    clickedBtn.classList.add("selected");
+
+    // Disable this same action on the other two cards in this pull:
+    allBtnsThisPull.forEach(b => {
+        if (
+        b.dataset.action === chosenAction &&
+        b.dataset.filename !== chosenFile
+        ) {
+        // If they had previously “selected” that action on another card, remove it:
+        if (b.classList.contains("selected")) {
+            b.classList.remove("selected");
+            delete userChoices[b.dataset.filename];
+        }
+        b.disabled = true;
+        }
+    });
+
+    // Check if all three images in this pull now have a choice:
+    const trio = pulls[currentPullIndex];
+    const allChosen = trio.every(f => typeof userChoices[f] === "string");
+    if (allChosen) {
+        nextButton.classList.add("enabled");
+        nextButton.disabled = false;
+    }
+    }
+
 
       // ─────────────────────────────────────────────────────────────────────
       // “Next” button: either go to the next pull or finish and show results
@@ -420,6 +460,8 @@
       function showResults() {
         document.getElementById("game-container").style.display = "none";
         resultsContainer.style.display = "block";
+        downloadButton.style.display = "block"; 
+        // (Now that results are visible, show the "Download Results" button)
 
         // Flatten [ [a,b,c], [d,e,f], … ] into [a,b,c,d,e,f,…] for iteration
         const allFilenames = pulls.flat();
@@ -459,6 +501,24 @@
           resultsGridEl.appendChild(groupDiv);
         }
       }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // HANDLE “Download Results” BUTTON
+      // ─────────────────────────────────────────────────────────────────────
+      downloadButton.addEventListener("click", () => {
+        // Use html2canvas to render the resultsContainer (including headings & grid) 
+        // into a single canvas, then download as PNG.
+        html2canvas(resultsContainer, { scale: 2 }).then(canvas => {
+          canvas.toBlob(blob => {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "results.png";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }, "image/png");
+        });
+      });
 
       // ─────────────────────────────────────────────────────────────────────
       // UTILITY: Fisher–Yates shuffle in place
