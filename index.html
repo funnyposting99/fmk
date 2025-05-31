@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+  <title>F*ck, Marry, Kill</title>
+  <style>
+    /* ================= GLOBAL RESET ================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: black;
+    }
+    h1, h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    /* ================ GAME CONTAINER ================ */
+    #game-container {
+      width: 100%;
+      max-width: 900px;
+      background-color: black;
+    }
+    #pull-counter {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    /* Using CSS Grid so that if the viewport is <800px, 
+       we force 1 column; if ≥800px, we use 3 columns. */
+    .images-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    @media (min-width: 800px) {
+      .images-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .image-card {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 0.5rem;
+    }
+    .image-card img {
+      height: auto;
+      display: block;
+      min-height: 620px;
+      min-width: 340px;
+      max-height: 620px;
+      min-width: 340px;
+    }
+
+    .buttons-row {
+      margin-top: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .choice-button {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #888;
+      background-color: #eee;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    /* Color the button text by action when unselected */
+    .choice-button.fuck {
+      color: green;
+    }
+    .choice-button.marry {
+      color: deeppink;
+    }
+    .choice-button.kill {
+      color: red;
+    }
+    /* When selected, override to green background */
+    .choice-button.selected {
+      background-color: #4caf50;
+      border-color: #388e3c;
+      color: #fff !important;
+    }
+    .choice-button:disabled {
+      background-color: #ddd;
+      border-color: #aaa;
+      cursor: not-allowed;
+      color: #777 !important;
+    }
+
+    /* Enlarge buttons a bit more on very large screens */
+    @media (min-width: 1200px) {
+      .choice-button {
+        padding: 0.75rem 1rem;
+        font-size: 1.2rem;
+      }
+    }
+
+    #next-button {
+      margin: 1rem auto;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background-color: #2196f3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      opacity: 0.5;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      display: block;
+    }
+    #next-button.enabled {
+      opacity: 1;
+      pointer-events: all;
+    }
+    /* Enlarge “Next” on big screens too */
+    @media (min-width: 1200px) {
+      #next-button {
+        font-size: 1.2rem;
+        padding: 0.8rem 1.5rem;
+      }
+    }
+
+    /* ============== RESULTS GRID ============== */
+    #results-container {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 2rem;
+    }
+    .results-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    /* Each pull of three thumbnails is wrapped in a “square” border */
+    .pull-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 310px;   /* 3×100px + 2×5px gap */
+    height: auto;  /* same as width to form a square */
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #fafafa;
+    padding: 5px;
+    }
+    .result-card {
+      /* Each cell is 100×100—our card will fill that */
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      text-align: center;
+      overflow: hidden;
+    }
+    .result-card img {
+      width: 80%;
+      height: auto;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      display: block;
+    }
+    /* Color the result‐label text inside each card */
+    .result-card .label-fuck {
+      color: green;
+    }
+    .result-card .label-marry {
+      color: deeppink;
+    }
+    .result-card .label-kill {
+      color: red;
+    }
+
+    /*   Mobile tweaks: keep the same single‐column pull layout & smaller gaps */
+    @media (max-width: 600px) {
+      .images-row {
+        gap: 0.5rem;
+      }
+      .buttons-row {
+        gap: 0.3rem;
+      }
+      .choice-button {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.6rem;
+      }
+      #next-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>F*ck, Marry, Kill</h1>
+
+  <!-- GAME AREA -->
+  <div id="game-container">
+    <div id="pull-counter">Loading images…</div>
+    <div class="images-row" id="images-row"></div>
+    <button id="next-button">Next</button>
+  </div>
+
+  <!-- RESULTS AREA (hidden until the end) -->
+  <div id="results-container">
+    <h2>Your Choices</h2>
+    <div class="results-grid" id="results-grid"></div>
+  </div>
+
+  <script>
+  (function() {
+    // ─────────────────────────────────────────────────────────────────────────
+    // 1) FETCH the directory index at /images/ and parse for all .png links
+    // ─────────────────────────────────────────────────────────────────────────
+    fetch("images/")
+      .then(resp => {
+        if (!resp.ok) {
+          throw new Error("Directory listing for /images/ not available (status " + resp.status + ").");
+        }
+        return resp.text();
+      })
+      .then(htmlString => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, "text/html");
+        // Find all <a href="..."> where href ends with ".png" (case‐insensitive)
+        const anchors = Array.from(doc.querySelectorAll("a[href$='.png'], a[href$='.PNG']"));
+        const pngFilenames = anchors.map(a => {
+          // href might be "./foo.png" or "foo.png". Normalize:
+          const raw = a.getAttribute("href");
+          return raw.replace(/^\.\//, "").split("/").pop();
+        });
+        // Deduplicate (some servers add “../” links, etc.)
+        const uniquePngs = Array.from(new Set(pngFilenames));
+        initGame(uniquePngs);
+      })
+      .catch(err => {
+        alert(
+          "Error: Could not read directory listing at /images/.\n" +
+          "Make sure your webserver has directory-indexing turned on for /images/.\n\n" +
+          "Details:\n" + err.message
+        );
+        document.getElementById("pull-counter").textContent = "Cannot load images.";
+      });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 2) MAIN GAME INITIALIZER
+    // ─────────────────────────────────────────────────────────────────────────
+    function initGame(imageList) {
+      // Filter out any non‐string or empty entries
+      const onlyStrings = imageList.filter(x => typeof x === "string" && x.trim().length > 0);
+      // Keep only filenames ending with .png (case‐insensitive)
+      const pngs = onlyStrings.filter(name => /\.png$/i.test(name));
+
+      const totalTriples = Math.floor(pngs.length / 3);
+      if (totalTriples < 1) {
+        alert("You need at least **3** “.png” files in /images/ to play.\nPlease add more .pngs and refresh.");
+        document.getElementById("pull-counter").textContent = "Not enough images.";
+        return;
+      }
+
+      // Use exactly the first (totalTriples * 3) images, ignore leftovers
+      const usableImages = pngs.slice(0, totalTriples * 3);
+
+      // Shuffle in place (Fisher–Yates)
+      shuffleArray(usableImages);
+
+      // Group into trios (pulls)
+      const pulls = [];
+      for (let i = 0; i < totalTriples; i++) {
+        pulls.push( usableImages.slice(i * 3, i * 3 + 3) );
+      }
+
+      // Keep track of user choices: { "filename.png": "fuck"|"marry"|"kill" }
+      const userChoices = {};
+
+      // Which pull index are we on? (0‐based)
+      let currentPullIndex = 0;
+
+      // DOM references
+      const pullCounterEl   = document.getElementById("pull-counter");
+      const imagesRowEl     = document.getElementById("images-row");
+      const nextButton      = document.getElementById("next-button");
+      const resultsContainer = document.getElementById("results-container");
+      const resultsGridEl   = document.getElementById("results-grid");
+
+      // Render the very first pull:
+      renderCurrentPull();
+
+      // ─────────────────────────────────────────────────────────────────────
+      // RENDER one trio of images + “Fuck/Marry/Kill” buttons
+      // ─────────────────────────────────────────────────────────────────────
+      function renderCurrentPull() {
+        imagesRowEl.innerHTML = ""; 
+        pullCounterEl.textContent = `Pull ${currentPullIndex + 1} / ${totalTriples}`;
+
+        const trio = pulls[currentPullIndex];
+        trio.forEach(filename => {
+          const card = document.createElement("div");
+          card.classList.add("image-card");
+
+          // <img src="images/filename.png">
+          const img = document.createElement("img");
+          img.src = `images/${filename}`;
+          img.alt = filename;
+          card.appendChild(img);
+
+          // Buttons row under each image
+          const btnRow = document.createElement("div");
+          btnRow.classList.add("buttons-row");
+
+          ["fuck", "marry", "kill"].forEach(action => {
+            const btn = document.createElement("button");
+            btn.textContent = action.charAt(0).toUpperCase() + action.slice(1);
+            btn.classList.add("choice-button", action); // add .fuck/.marry/.kill class for coloring
+            btn.dataset.action   = action;   // “fuck” | “marry” | “kill”
+            btn.dataset.filename = filename; // e.g. “chef.png”
+            btn.addEventListener("click", onChoiceClicked);
+            btnRow.appendChild(btn);
+          });
+
+          card.appendChild(btnRow);
+          imagesRowEl.appendChild(card);
+        });
+
+        // Disable “Next” until all three choices are made
+        nextButton.classList.remove("enabled");
+        nextButton.disabled = true;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // HANDLER: User clicks “Fuck/Marry/Kill”
+      // ─────────────────────────────────────────────────────────────────────
+      function onChoiceClicked(e) {
+        const clickedBtn   = e.currentTarget;
+        const chosenAction = clickedBtn.dataset.action;   // “fuck”/“marry”/“kill”
+        const chosenFile   = clickedBtn.dataset.filename; // e.g. “foo.png”
+
+        // If they click the same already‐selected button, ignore
+        if (clickedBtn.classList.contains("selected")) {
+          return;
+        }
+
+        // Gather all buttons in THIS pull (so we can enable/disable)
+        const allBtnsThisPull = imagesRowEl.querySelectorAll(".choice-button");
+
+        // 1) If that filename already had a previous choice, un‐select & re-enable that action elsewhere
+        const prevChoice = userChoices[chosenFile];
+        if (prevChoice) {
+          allBtnsThisPull.forEach(b => {
+            if (
+              b.dataset.action === prevChoice &&
+              b.dataset.filename !== chosenFile
+            ) {
+              b.disabled = false;
+            }
+          });
+        }
+
+        // 2) Remove “selected” class from the other two buttons of the same image
+        allBtnsThisPull.forEach(b => {
+          if (b.dataset.filename === chosenFile) {
+            b.classList.remove("selected");
+          }
+        });
+
+        // 3) Record new selection
+        userChoices[chosenFile] = chosenAction;
+        clickedBtn.classList.add("selected");
+
+        // 4) Disable this same action on the other two cards (and un‐select if they had chosen it)
+        allBtnsThisPull.forEach(b => {
+          if (
+            b.dataset.action === chosenAction &&
+            b.dataset.filename !== chosenFile
+          ) {
+            if (b.classList.contains("selected")) {
+              b.classList.remove("selected");
+              delete userChoices[b.dataset.filename];
+            }
+            b.disabled = true;
+          }
+        });
+
+        // 5) Check if all three images in this pull now have a recorded choice
+        const trio = pulls[currentPullIndex];
+        const allChosen = trio.every(f => typeof userChoices[f] === "string");
+        if (allChosen) {
+          nextButton.classList.add("enabled");
+          nextButton.disabled = false;
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // “Next” button: either go to the next pull or finish and show results
+      // ─────────────────────────────────────────────────────────────────────
+      nextButton.addEventListener("click", () => {
+        if (!nextButton.classList.contains("enabled")) return;
+
+        if (currentPullIndex === pulls.length - 1) {
+          showResults();
+        } else {
+          currentPullIndex++;
+          renderCurrentPull();
+        }
+      });
+
+      // ─────────────────────────────────────────────────────────────────────
+      // SHOW FINAL RESULTS: hide game, display each pull in its own square
+      // ─────────────────────────────────────────────────────────────────────
+      function showResults() {
+        document.getElementById("game-container").style.display = "none";
+        resultsContainer.style.display = "block";
+
+        // Flatten [ [a,b,c], [d,e,f], … ] into [a,b,c,d,e,f,…] for iteration
+        const allFilenames = pulls.flat();
+
+        // But we want to group by each pull of 3. So iterate by chunks of 3:
+        for (let i = 0; i < allFilenames.length; i += 3) {
+          const trio = allFilenames.slice(i, i + 3);
+          const groupDiv = document.createElement("div");
+          groupDiv.classList.add("pull-group");
+
+          // Place each of the three results into one cell of the 2×2 grid:
+          trio.forEach((filename, idx) => {
+            const choice = userChoices[filename] || "No Choice";
+            const resultCard = document.createElement("div");
+            resultCard.classList.add("result-card");
+
+            const thumb = document.createElement("img");
+            thumb.src = `images/${filename}`;
+            thumb.alt = filename;
+            resultCard.appendChild(thumb);
+
+            const labelDiv = document.createElement("div");
+            // Choose a class for coloring the text
+            if (choice === "fuck") {
+              labelDiv.classList.add("label-fuck");
+            } else if (choice === "marry") {
+              labelDiv.classList.add("label-marry");
+            } else if (choice === "kill") {
+              labelDiv.classList.add("label-kill");
+            }
+            // Capitalize first letter
+            labelDiv.textContent = choice.charAt(0).toUpperCase() + choice.slice(1);
+            resultCard.appendChild(labelDiv);
+
+            groupDiv.appendChild(resultCard);
+          });
+
+          // If you want that bottom-right cell of the 2×2 grid to remain empty, 
+          // we can just leave it unfilled. The CSS grid is still a square.
+          resultsGridEl.appendChild(groupDiv);
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // UTILITY: Fisher–Yates shuffle in place
+      // ─────────────────────────────────────────────────────────────────────
+      function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+      }
+    }
+  })();
+  </script>
+</body>
+</html>
