@@ -7,241 +7,7 @@
     content="width=device-width, initial-scale=1.0"
   />
   <title>F*ck, Marry, Kill</title>
-  <style>
-    /* ================= GLOBAL RESET ================= */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: sans-serif;
-      background-color: #fafafa;
-      color: #333;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: black;
-    }
-    h1, h2 {
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    /* ================ GAME CONTAINER ================ */
-    #game-container {
-      width: 100%;
-      max-width: 900px;
-      background-color: black;
-    }
-    #pull-counter {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    /* Using CSS Grid so that if the viewport is <800px, 
-       we force 1 column; if ≥800px, we use 3 columns. */
-    .images-row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    @media (min-width: 800px) {
-      .images-row {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    .image-card {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-bottom: 0.5rem;
-    }
-    .image-card img {
-      height: auto;
-      display: block;
-      min-height: 620px;
-      min-width: 340px;
-      max-height: 620px;
-      min-width: 340px;
-    }
-
-    .buttons-row {
-      margin-top: 0.5rem;
-      display: flex;
-      gap: 0.5rem;
-      width: 100%;
-      justify-content: center;
-    }
-
-     /* Download button styling */
-    #download-button {
-      margin: 1rem auto;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      background-color: #4caf50;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: none; /* hidden until results are shown */
-      transition: background-color 0.2s;
-    }
-    #download-button:hover {
-      background-color: #388e3c;
-    }
-
-    .choice-button {
-      flex: 1;
-      padding: 0.5rem 0.75rem;
-      font-size: 1rem;
-      border: 1px solid #888;
-      background-color: #eee;
-      border-radius: 4px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s, border-color 0.2s;
-    }
-    /* Color the button text by action when unselected */
-    .choice-button.fuck {
-      color: green;
-    }
-    .choice-button.marry {
-      color: deeppink;
-    }
-    .choice-button.kill {
-      color: red;
-    }
-    /* When selected, override to green background */
-    .choice-button.selected {
-      background-color: #4caf50;
-      border-color: #388e3c;
-      color: #fff !important;
-    }
-    .choice-button:disabled {
-      background-color: #ddd;
-      border-color: #aaa;
-      cursor: not-allowed;
-      color: #777 !important;
-    }
-
-    /* Enlarge buttons a bit more on very large screens */
-    @media (min-width: 1200px) {
-      .choice-button {
-        padding: 0.75rem 1rem;
-        font-size: 1.2rem;
-      }
-    }
-
-    #next-button {
-      margin: 1rem auto;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      background-color: #2196f3;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      opacity: 0.5;
-      pointer-events: none;
-      transition: opacity 0.2s;
-      display: block;
-    }
-    #next-button.enabled {
-      opacity: 1;
-      pointer-events: all;
-    }
-    /* Enlarge “Next” on big screens too */
-    @media (min-width: 1200px) {
-      #next-button {
-        font-size: 1.2rem;
-        padding: 0.8rem 1.5rem;
-      }
-    }
-
-    /* ============== RESULTS GRID ============== */
-    #results-container {
-      display: none;
-      width: 100%;
-      margin-top: 2rem;
-    }
-    .results-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-    }
-    /* Each pull of three thumbnails is wrapped in a “square” border */
-    .pull-group {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    width: 310px;   /* 3×100px + 2×5px gap */
-    height: auto;  /* same as width to form a square */
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    background-color: #fafafa;
-    padding: 5px;
-    }
-    .result-card {
-      /* Each cell is 100×100—our card will fill that */
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      border: 1px solid #bbb;
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      text-align: center;
-      overflow: hidden;
-    }
-    .result-card img {
-      width: 80%;
-      height: auto;
-      margin-bottom: 4px;
-      border-radius: 4px;
-      display: block;
-    }
-    /* Color the result‐label text inside each card */
-    .result-card .label-fuck {
-      color: green;
-    }
-    .result-card .label-marry {
-      color: deeppink;
-    }
-    .result-card .label-kill {
-      color: red;
-    }
-
-    /*   Mobile tweaks: keep the same single‐column pull layout & smaller gaps */
-    @media (max-width: 600px) {
-      .images-row {
-        gap: 0.5rem;
-      }
-      .buttons-row {
-        gap: 0.3rem;
-      }
-      .choice-button {
-        font-size: 0.9rem;
-        padding: 0.4rem 0.6rem;
-      }
-      #next-button {
-        width: 100%;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
@@ -258,30 +24,65 @@
   <div id="results-container">
     <h2>Your Choices</h2>
     <div class="results-grid" id="results-grid"></div>
+    <!-- Download button appears here after results are rendered -->
     <button id="download-button">Download Results as PNG</button>
   </div>
 
   <script>
   (function() {
     // ─────────────────────────────────────────────────────────────────────────
-    // 1) BUILD AN ARRAY ["1.png","2.png","3.png", … "144.png"]
+    // 1) Ask “Include characters from Rance X?” at start
     // ─────────────────────────────────────────────────────────────────────────
-    const imageList = Array.from({ length: 144 }, (_, i) => `${i + 1}.png`);
+    const includeRanceX = confirm(
+      "Include characters from Rance X?\n\n" +
+      "OK = Yes, Cancel = No"
+    );
 
-    // Now call initGame with that list
+    // Build a full list: ["1.png","2.png", … "144.png"]
+    let imageList = Array.from({ length: 144 }, (_, i) => `${i + 1}.png`);
+
+    // If user said “No”, remove the specified numbers:
+    if (!includeRanceX) {
+      const skipNumbers = [
+        4, 5, 15, 19, 20,
+        24, 35, 38,
+        44, 46, 51,
+        56, 62, 67,
+        70, 73, 87,
+        91, 95, 98,
+        100, 105, 107,
+        110, 118,
+        119, 120, 126,
+        127, 132, 134,
+        135, 136, 140,
+        141, 87
+      ];
+      // Remove duplicates from skipNumbers (87 appears twice) just in case
+      const skipSet = new Set(skipNumbers);
+      imageList = imageList.filter(name => {
+        const num = parseInt(name.replace(".png", ""), 10);
+        return !skipSet.has(num);
+      });
+    }
+
+    // Now call initGame with the (possibly filtered) list
     initGame(imageList);
+
 
     // ─────────────────────────────────────────────────────────────────────────
     // 2) MAIN GAME INITIALIZER
     // ─────────────────────────────────────────────────────────────────────────
     function initGame(imageList) {
-      // Filter out any bad entries (not strictly necessary since we built it, but just in case)
+      // Filter out any bad entries (not strictly necessary if imageList was built clean)
       const onlyStrings = imageList.filter(x => typeof x === "string" && x.trim().length > 0);
       const pngs = onlyStrings.filter(name => /\.png$/i.test(name));
 
       const totalTriples = Math.floor(pngs.length / 3);
       if (totalTriples < 1) {
-        alert("You need at least **3** “.png” files in /images/ to play.\nPlease add more .pngs and refresh.");
+        alert(
+          "Not enough images to play after filtering.\n" +
+          "Please ensure at least 3 valid .pngs remain."
+        );
         document.getElementById("pull-counter").textContent = "Not enough images.";
         return;
       }
@@ -298,7 +99,7 @@
         pulls.push( usableImages.slice(i * 3, i * 3 + 3) );
       }
 
-      // Keep track of user choices: { "4.png": "marry", "27.png": "kill", … }
+      // Keep track of user choices: { "filename.png": "fuck"|"marry"|"kill" }
       const userChoices = {};
 
       // Which pull index are we on? (0-based)
@@ -307,7 +108,7 @@
       // DOM references
       const pullCounterEl    = document.getElementById("pull-counter");
       const imagesRowEl      = document.getElementById("images-row");
-      const nextButton       = document.getElementById("next-button");
+      const nextButton      = document.getElementById("next-button");
       const resultsContainer = document.getElementById("results-container");
       const resultsGridEl    = document.getElementById("results-grid");
       const downloadButton   = document.getElementById("download-button");
@@ -340,7 +141,7 @@
           ["fuck", "marry", "kill"].forEach(action => {
             const btn = document.createElement("button");
             btn.textContent = action.charAt(0).toUpperCase() + action.slice(1);
-            btn.classList.add("choice-button", action); // add .fuck/.marry/.kill
+            btn.classList.add("choice-button", action);
             btn.dataset.action   = action;   // “fuck” | “marry” | “kill”
             btn.dataset.filename = filename; // e.g. “27.png”
             btn.addEventListener("click", onChoiceClicked);
@@ -359,86 +160,82 @@
       // ─────────────────────────────────────────────────────────────────────
       // HANDLER: User clicks “Fuck/Marry/Kill”
       // ─────────────────────────────────────────────────────────────────────
-function onChoiceClicked(e) {
-  const clickedBtn   = e.currentTarget;
-  const chosenAction = clickedBtn.dataset.action;   // “fuck”/“marry”/“kill”
-  const chosenFile   = clickedBtn.dataset.filename; // e.g. “42.png”
+      function onChoiceClicked(e) {
+        const clickedBtn   = e.currentTarget;
+        const chosenAction = clickedBtn.dataset.action;   // “fuck”/“marry”/“kill”
+        const chosenFile   = clickedBtn.dataset.filename; // e.g. “42.png”
 
-  // 1) If the clicked button is already selected, un‐select it:
-  if (clickedBtn.classList.contains("selected")) {
-    // Remove the “selected” class from this button:
-    clickedBtn.classList.remove("selected");
-    // Remove the stored choice for this file:
-    delete userChoices[chosenFile];
-    // Re‐enable that action (e.g. “marry”) on the other two cards in this pull:
-    const allBtnsThisPull = imagesRowEl.querySelectorAll(".choice-button");
-    allBtnsThisPull.forEach(b => {
-      if (
-        b.dataset.action === chosenAction &&
-        b.dataset.filename !== chosenFile
-      ) {
-        b.disabled = false;
-      }
-    });
-    // Since one image is now un‐assigned, disable “Next” again:
-    nextButton.classList.remove("enabled");
-    nextButton.disabled = true;
-    return;
-  }
+        // 1) If the clicked button is already selected, un‐select it:
+        if (clickedBtn.classList.contains("selected")) {
+          clickedBtn.classList.remove("selected");
+          delete userChoices[chosenFile];
 
-  // 2) Otherwise, this is a new selection. Proceed with the existing logic:
+          // Re-enable that action on other cards in this pull
+          const allBtnsThisPull = imagesRowEl.querySelectorAll(".choice-button");
+          allBtnsThisPull.forEach(b => {
+            if (
+              b.dataset.action === chosenAction &&
+              b.dataset.filename !== chosenFile
+            ) {
+              b.disabled = false;
+            }
+          });
 
-  // Gather all buttons in this pull (so we can enable/disable actions)
-    const allBtnsThisPull = imagesRowEl.querySelectorAll(".choice-button");
+          // Disable Next again, since one image is now unassigned
+          nextButton.classList.remove("enabled");
+          nextButton.disabled = true;
+          return;
+        }
 
-    // If that filename had a previous choice, un‐select it and re‐enable that action elsewhere:
-    const prevChoice = userChoices[chosenFile];
-    if (prevChoice) {
+        // 2) Otherwise, proceed with normal selection logic:
+        const allBtnsThisPull = imagesRowEl.querySelectorAll(".choice-button");
+
+        // If this filename had a previous choice, re-enable that action elsewhere
+        const prevChoice = userChoices[chosenFile];
+        if (prevChoice) {
+          allBtnsThisPull.forEach(b => {
+            if (
+              b.dataset.action === prevChoice &&
+              b.dataset.filename !== chosenFile
+            ) {
+              b.disabled = false;
+            }
+          });
+        }
+
+        // Remove “selected” from any other button for this same image
         allBtnsThisPull.forEach(b => {
-        if (
-            b.dataset.action === prevChoice &&
-            b.dataset.filename !== chosenFile
-        ) {
-            b.disabled = false;
-        }
-        });
-    }
-
-    // Remove “selected” from any other button for this same image:
-    allBtnsThisPull.forEach(b => {
-        if (b.dataset.filename === chosenFile) {
-        b.classList.remove("selected");
-        }
-    });
-
-    // Record the new choice for this image:
-    userChoices[chosenFile] = chosenAction;
-    clickedBtn.classList.add("selected");
-
-    // Disable this same action on the other two cards in this pull:
-    allBtnsThisPull.forEach(b => {
-        if (
-        b.dataset.action === chosenAction &&
-        b.dataset.filename !== chosenFile
-        ) {
-        // If they had previously “selected” that action on another card, remove it:
-        if (b.classList.contains("selected")) {
+          if (b.dataset.filename === chosenFile) {
             b.classList.remove("selected");
-            delete userChoices[b.dataset.filename];
-        }
-        b.disabled = true;
-        }
-    });
+          }
+        });
 
-    // Check if all three images in this pull now have a choice:
-    const trio = pulls[currentPullIndex];
-    const allChosen = trio.every(f => typeof userChoices[f] === "string");
-    if (allChosen) {
-        nextButton.classList.add("enabled");
-        nextButton.disabled = false;
-    }
-    }
+        // Record new choice
+        userChoices[chosenFile] = chosenAction;
+        clickedBtn.classList.add("selected");
 
+        // Disable this same action on the other two cards in this pull
+        allBtnsThisPull.forEach(b => {
+          if (
+            b.dataset.action === chosenAction &&
+            b.dataset.filename !== chosenFile
+          ) {
+            if (b.classList.contains("selected")) {
+              b.classList.remove("selected");
+              delete userChoices[b.dataset.filename];
+            }
+            b.disabled = true;
+          }
+        });
+
+        // Check if all three images in this pull now have a choice
+        const trio = pulls[currentPullIndex];
+        const allChosen = trio.every(f => typeof userChoices[f] === "string");
+        if (allChosen) {
+          nextButton.classList.add("enabled");
+          nextButton.disabled = false;
+        }
+      }
 
       // ─────────────────────────────────────────────────────────────────────
       // “Next” button: either go to the next pull or finish and show results
@@ -466,7 +263,7 @@ function onChoiceClicked(e) {
         // Flatten [ [a,b,c], [d,e,f], … ] into [a,b,c,d,e,f,…] for iteration
         const allFilenames = pulls.flat();
 
-        // But we want to group by each pull of 3. So iterate by chunks of 3:
+        // Group by each pull of 3 (chunks of 3)
         for (let i = 0; i < allFilenames.length; i += 3) {
           const trio = allFilenames.slice(i, i + 3);
           const groupDiv = document.createElement("div");
@@ -497,7 +294,7 @@ function onChoiceClicked(e) {
             groupDiv.appendChild(resultCard);
           });
 
-          // That’s it—each .pull-group is a 310×310px square with three 100×100 thumbnails in one row.
+          // Each .pull-group is a 310×310px square with three 100×100 thumbnails in a row.
           resultsGridEl.appendChild(groupDiv);
         }
       }
@@ -506,8 +303,7 @@ function onChoiceClicked(e) {
       // HANDLE “Download Results” BUTTON
       // ─────────────────────────────────────────────────────────────────────
       downloadButton.addEventListener("click", () => {
-        // Use html2canvas to render the resultsContainer (including headings & grid) 
-        // into a single canvas, then download as PNG.
+        // Use html2canvas to render the resultsContainer into a canvas, then download as PNG.
         html2canvas(resultsContainer, { scale: 2 }).then(canvas => {
           canvas.toBlob(blob => {
             const link = document.createElement("a");

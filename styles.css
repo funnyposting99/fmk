@@ -1,0 +1,233 @@
+/* ================= GLOBAL RESET ================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: sans-serif;
+    background-color: #fafafa;
+    color: #333;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: black;
+}
+h1, h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* ================ GAME CONTAINER ================ */
+#game-container {
+    width: 100%;
+    max-width: 900px;
+    background-color: black;
+}
+#pull-counter {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Using CSS Grid so that if the viewport is <800px, 
+    we force 1 column; if ≥800px, we use 3 columns. */
+.images-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+@media (min-width: 800px) {
+    .images-row {
+    grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.image-card {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 0.5rem;
+}
+.image-card img {
+    height: auto;
+    display: block;
+    min-height: 620px;
+    min-width: 340px;
+    max-height: 620px;
+    min-width: 340px;
+}
+
+.buttons-row {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+    /* Download button styling */
+#download-button {
+    margin: 1rem auto;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: none; /* hidden until results are shown */
+    transition: background-color 0.2s;
+}
+#download-button:hover {
+    background-color: #388e3c;
+}
+
+.choice-button {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #888;
+    background-color: #eee;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+/* Color the button text by action when unselected */
+.choice-button.fuck {
+    color: green;
+}
+.choice-button.marry {
+    color: deeppink;
+}
+.choice-button.kill {
+    color: red;
+}
+/* When selected, override to green background */
+.choice-button.selected {
+    background-color: #4caf50;
+    border-color: #388e3c;
+    color: #fff !important;
+}
+.choice-button:disabled {
+    background-color: #ddd;
+    border-color: #aaa;
+    cursor: not-allowed;
+    color: #777 !important;
+}
+
+/* Enlarge buttons a bit more on very large screens */
+@media (min-width: 1200px) {
+    .choice-button {
+    padding: 0.75rem 1rem;
+    font-size: 1.2rem;
+    }
+}
+
+#next-button {
+    margin: 1rem auto;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background-color: #2196f3;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    display: block;
+}
+#next-button.enabled {
+    opacity: 1;
+    pointer-events: all;
+}
+/* Enlarge “Next” on big screens too */
+@media (min-width: 1200px) {
+    #next-button {
+    font-size: 1.2rem;
+    padding: 0.8rem 1.5rem;
+    }
+}
+
+/* ============== RESULTS GRID ============== */
+#results-container {
+    display: none;
+    width: 100%;
+    margin-top: 2rem;
+}
+.results-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+/* Each pull of three thumbnails is wrapped in a “square” border */
+.pull-group {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 5px;
+width: 310px;   /* 3×100px + 2×5px gap */
+height: auto;  /* same as width to form a square */
+border: 2px solid #ccc;
+border-radius: 8px;
+background-color: #fafafa;
+padding: 5px;
+}
+.result-card {
+    /* Each cell is 100×100—our card will fill that */
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    text-align: center;
+    overflow: hidden;
+}
+.result-card img {
+    width: 80%;
+    height: auto;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    display: block;
+}
+/* Color the result‐label text inside each card */
+.result-card .label-fuck {
+    color: green;
+}
+.result-card .label-marry {
+    color: deeppink;
+}
+.result-card .label-kill {
+    color: red;
+}
+
+/*   Mobile tweaks: keep the same single‐column pull layout & smaller gaps */
+@media (max-width: 600px) {
+    .images-row {
+    gap: 0.5rem;
+    }
+    .buttons-row {
+    gap: 0.3rem;
+    }
+    .choice-button {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+    }
+    #next-button {
+    width: 100%;
+    }
+}
