@@ -22,7 +22,7 @@ h1, h2 {
 /* ================ GAME CONTAINER ================ */
 #game-container {
     width: 100%;
-    max-width: 80%;
+    max-width: 80%; /* 900px */
     background-color: black;
 }
 #pull-counter {
