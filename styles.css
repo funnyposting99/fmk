@@ -22,7 +22,7 @@ h1, h2 {
 /* ================ GAME CONTAINER ================ */
 #game-container {
     width: 100%;
-    max-width: 900px;
+    max-width: 80%;
     background-color: black;
 }
 #pull-counter {
@@ -61,7 +61,6 @@ h1, h2 {
     min-height: 620px;
     min-width: 340px;
     max-height: 620px;
-    min-width: 340px;
 }
 
 .buttons-row {
@@ -171,16 +170,16 @@ h1, h2 {
 }
 /* Each pull of three thumbnails is wrapped in a “square” border */
 .pull-group {
-display: flex;
-justify-content: center;
-align-items: center;
-gap: 5px;
-width: 310px;   /* 3×100px + 2×5px gap */
-height: auto;  /* same as width to form a square */
-border: 2px solid #ccc;
-border-radius: 8px;
-background-color: #fafafa;
-padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 310px;   /* 3×100px + 2×5px gap */
+    height: auto;  /* same as width to form a square */
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #fafafa;
+    padding: 5px;
 }
 .result-card {
     /* Each cell is 100×100—our card will fill that */
