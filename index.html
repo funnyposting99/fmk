@@ -38,8 +38,8 @@
       "OK = Yes, Cancel = No"
     );
 
-    // Build a full list: ["1.png","2.png", … "149.png"]
-    let imageList = Array.from({ length: 149 }, (_, i) => `${i + 1}.png`);
+    // Build a full list: ["1.png","2.png", … "144.png"]
+    let imageList = Array.from({ length: 165 }, (_, i) => `${i + 1}.png`);
 
     // If user said “No”, remove the specified numbers:
     if (!includeRanceX) {
@@ -58,7 +58,8 @@
         141, 87, 19,
         146, 147, 149,
         150, 151, 152,
-        153, 155, 157
+        153, 155, 157,
+        164, 11, 109
       ];
       // Remove duplicates from skipNumbers (87 appears twice) just in case
       const skipSet = new Set(skipNumbers);
