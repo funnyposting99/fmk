@@ -349,20 +349,6 @@ h1, h2 {
     color: red;
 }
 
-/* Hover animations - lighten the text color slightly */
-.choice-button.fuck:hover:not(:disabled):not(.selected) {
-    color: #4caf50;
-    background-color: rgba(76, 175, 80, 0.1);
-}
-.choice-button.marry:hover:not(:disabled):not(.selected) {
-    color: #ff1493;
-    background-color: rgba(255, 20, 147, 0.1);
-}
-.choice-button.kill:hover:not(:disabled):not(.selected) {
-    color: #ff4444;
-    background-color: rgba(255, 68, 68, 0.1);
-}
-
 /* When selected, use the action's color as background */
 .choice-button.fuck.selected {
     background-color: green;
