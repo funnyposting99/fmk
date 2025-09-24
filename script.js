@@ -33,10 +33,8 @@
       // Show Rance options popup
       document.getElementById('rance-popup').style.display = 'flex';
     } else {
-      // For Fire Emblem, start game directly
-      franchiseSelection.style.display = 'none';
-      gameContainer.style.display = 'block';
-      initializeGame(selectedFranchise);
+      // For Fire Emblem, start preloading and game
+      startPreloadingAndGame(selectedFranchise);
     }
   });
 
@@ -48,13 +46,11 @@
   const includeOldSprites = document.getElementById('include-old-sprites');
 
   confirmRanceOptions.addEventListener('click', () => {
-    // Hide popup and franchise selection, show game
+    // Hide popup and start preloading
     rancePopup.style.display = 'none';
-    franchiseSelection.style.display = 'none';
-    gameContainer.style.display = 'block';
     
-    // Initialize game with Rance options
-    initializeGame('rance', {
+    // Start preloading and game with Rance options
+    startPreloadingAndGame('rance', {
       includeRanceX: includeRanceX.checked,
       includeOldSprites: includeOldSprites.checked
     });
@@ -66,9 +62,80 @@
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 2) GAME INITIALIZATION BASED ON FRANCHISE
+  // 2) IMAGE PRELOADING SYSTEM
   // ─────────────────────────────────────────────────────────────────────────
-  function initializeGame(franchise, options = {}) {
+  function startPreloadingAndGame(franchise, options = {}) {
+    // Hide franchise selection and show loading
+    franchiseSelection.style.display = 'none';
+    document.getElementById('loading-container').style.display = 'flex';
+    
+    // Get image configuration
+    const { imageList, imageFolder } = getImageConfiguration(franchise, options);
+    
+    // Start preloading
+    preloadImages(imageList, imageFolder)
+      .then(() => {
+        // All images loaded, hide loading and start game
+        document.getElementById('loading-container').style.display = 'none';
+        gameContainer.style.display = 'block';
+        initGame(imageList, imageFolder);
+      })
+      .catch((error) => {
+        console.error('Error preloading images:', error);
+        // Even if some images fail, try to start the game
+        document.getElementById('loading-container').style.display = 'none';
+        gameContainer.style.display = 'block';
+        initGame(imageList, imageFolder);
+      });
+  }
+
+  function preloadImages(imageList, imageFolder) {
+    return new Promise((resolve, reject) => {
+      const totalImages = imageList.length;
+      let loadedImages = 0;
+      let failedImages = 0;
+      
+      const loadingText = document.getElementById('loading-text');
+      const loadingProgress = document.getElementById('loading-progress');
+      
+      // Update progress display
+      function updateProgress() {
+        const progress = Math.round(((loadedImages + failedImages) / totalImages) * 100);
+        loadingText.textContent = `Loading images... ${loadedImages + failedImages}/${totalImages}`;
+        loadingProgress.style.width = `${progress}%`;
+        
+        if (loadedImages + failedImages === totalImages) {
+          loadingText.textContent = `Ready! Loaded ${loadedImages}/${totalImages} images`;
+          setTimeout(resolve, 500); // Small delay to show completion
+        }
+      }
+      
+      // Preload each image
+      imageList.forEach((filename) => {
+        const img = new Image();
+        
+        img.onload = () => {
+          loadedImages++;
+          updateProgress();
+        };
+        
+        img.onerror = () => {
+          failedImages++;
+          console.warn(`Failed to load: images/${imageFolder}/${filename}`);
+          updateProgress();
+        };
+        
+        img.src = `images/${imageFolder}/${filename}`;
+      });
+      
+      // Handle edge case of empty image list
+      if (totalImages === 0) {
+        resolve();
+      }
+    });
+  }
+
+  function getImageConfiguration(franchise, options = {}) {
     let imageList = [];
     let imageFolder = '';
     let fileExtension = '';
@@ -129,12 +196,19 @@
       imageList = Array.from({ length: 237 }, (_, i) => `image (${i + 1})${fileExtension}`);
     }
 
-    // Start the main game with the configured parameters
+    return { imageList, imageFolder };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 3) GAME INITIALIZATION (simplified, moved configuration logic above)
+  // ─────────────────────────────────────────────────────────────────────────
+  function initializeGame(franchise, options = {}) {
+    const { imageList, imageFolder } = getImageConfiguration(franchise, options);
     initGame(imageList, imageFolder);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 3) MAIN GAME LOGIC (adapted from original)
+  // 4) MAIN GAME LOGIC (adapted from original)
   // ─────────────────────────────────────────────────────────────────────────
   function initGame(imageList, imageFolder) {
     // Filter out any bad entries

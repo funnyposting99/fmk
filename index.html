@@ -33,7 +33,7 @@
   <!-- RANCE OPTIONS POPUP -->
   <div id="rance-popup">
     <div class="popup-content">
-      <h3>Rance Options</h3>
+      <h3>Options</h3>
       <div class="option-group">
         <label>
           <input type="checkbox" id="include-rance-x">
@@ -43,12 +43,23 @@
       <div class="option-group">
         <label>
           <input type="checkbox" id="include-old-sprites">
-          Use characters without H sprites from old games
+          Use characters from old games without naked sprites
         </label>
       </div>
       <div class="popup-buttons">
         <button class="popup-button confirm" id="confirm-rance-options">Start Game</button>
         <button class="popup-button cancel" id="cancel-rance-options">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING SCREEN -->
+  <div id="loading-container" style="display: none;">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h2 id="loading-text">Loading images...</h2>
+      <div class="loading-bar">
+        <div class="loading-progress" id="loading-progress"></div>
       </div>
     </div>
   </div>
