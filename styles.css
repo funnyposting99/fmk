@@ -348,10 +348,35 @@ h1, h2 {
 .choice-button.kill {
     color: red;
 }
-/* When selected, override to green background */
-.choice-button.selected {
-    background-color: #4caf50;
-    border-color: #388e3c;
+
+/* Hover animations - lighten the text color slightly */
+.choice-button.fuck:hover:not(:disabled):not(.selected) {
+    color: #4caf50;
+    background-color: rgba(76, 175, 80, 0.1);
+}
+.choice-button.marry:hover:not(:disabled):not(.selected) {
+    color: #ff1493;
+    background-color: rgba(255, 20, 147, 0.1);
+}
+.choice-button.kill:hover:not(:disabled):not(.selected) {
+    color: #ff4444;
+    background-color: rgba(255, 68, 68, 0.1);
+}
+
+/* When selected, use the action's color as background */
+.choice-button.fuck.selected {
+    background-color: green;
+    border-color: #2e7d32;
+    color: #fff !important;
+}
+.choice-button.marry.selected {
+    background-color: deeppink;
+    border-color: #c2185b;
+    color: #fff !important;
+}
+.choice-button.kill.selected {
+    background-color: red;
+    border-color: #c62828;
     color: #fff !important;
 }
 .choice-button:disabled {
