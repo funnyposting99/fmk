@@ -411,12 +411,14 @@ h1, h2 {
     display: none;
     width: 100%;
     margin-top: 2rem;
+    background-color: black;
 }
 .results-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     justify-content: center;
+    background-color: black;
 }
 /* Each pull of three thumbnails is wrapped in a “square” border */
 .pull-group {
@@ -425,18 +427,17 @@ h1, h2 {
     align-items: center;
     gap: 5px;
     width: 310px;   /* 3×100px + 2×5px gap */
-    height: auto;  /* same as width to form a square */
-    border: 2px solid #ccc;
+    height: auto;
+    border: 2px solid #4caf50;
     border-radius: 8px;
-    background-color: #fafafa;
+    background-color: black;
     padding: 5px;
 }
 .result-card {
-    /* Each cell is 100×100—our card will fill that */
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border: 1px solid #bbb;
+    width: 100px;
+    height: 120px;
+    background: black;
+    border: 1px solid #4caf50;
     border-radius: 6px;
     display: flex;
     flex-direction: column;
@@ -447,8 +448,9 @@ h1, h2 {
     overflow: hidden;
 }
 .result-card img {
-    width: 80%;
-    height: auto;
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
     margin-bottom: 4px;
     border-radius: 4px;
     display: block;
@@ -456,12 +458,15 @@ h1, h2 {
 /* Color the result‐label text inside each card */
 .result-card .label-fuck {
     color: green;
+    background-color: black;
 }
 .result-card .label-marry {
     color: deeppink;
+    background-color: black;
 }
 .result-card .label-kill {
     color: red;
+    background-color: black;
 }
 
 /*   Mobile tweaks: keep the same single‐column pull layout & smaller gaps */
